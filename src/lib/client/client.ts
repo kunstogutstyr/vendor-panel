@@ -3,6 +3,17 @@ import Medusa from '@medusajs/js-sdk';
 export const backendUrl = __BACKEND_URL__ ?? '/';
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? '';
 
+/** Headere for markedsplass-kontekst (multi-marketplace). Bruk VITE_SALES_CHANNEL_ID og VITE_REGION_ID i .env. */
+const getMarketplaceHeaders = (): Record<string, string> => {
+  const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};
+  const salesChannelId = (env as { VITE_SALES_CHANNEL_ID?: string }).VITE_SALES_CHANNEL_ID?.trim();
+  const regionId = (env as { VITE_REGION_ID?: string }).VITE_REGION_ID?.trim();
+  const headers: Record<string, string> = {};
+  if (salesChannelId) headers['x-sales-channel-id'] = salesChannelId;
+  if (regionId) headers['x-region-id'] = regionId;
+  return headers;
+};
+
 const token = window.localStorage.getItem('medusa_auth_token') || '';
 
 const decodeJwt = (token: string) => {
@@ -43,7 +54,8 @@ export const importProductsQuery = async (file: File) => {
     body: formData,
     headers: {
       authorization: `Bearer ${token}`,
-      'x-publishable-api-key': publishableApiKey
+      'x-publishable-api-key': publishableApiKey,
+      ...getMarketplaceHeaders()
     }
   })
     .then(res => res.json())
@@ -62,7 +74,8 @@ export const uploadFilesQuery = async (files: any[]) => {
     body: formData,
     headers: {
       authorization: `Bearer ${token}`,
-      'x-publishable-api-key': publishableApiKey
+      'x-publishable-api-key': publishableApiKey,
+      ...getMarketplaceHeaders()
     }
   })
     .then(res => res.json())
@@ -111,6 +124,7 @@ export const fetchQuery = async (
       authorization: `Bearer ${bearer}`,
       'Content-Type': 'application/json',
       'x-publishable-api-key': publishableApiKey,
+      ...getMarketplaceHeaders(),
       ...headers
     },
     body: body ? JSON.stringify(body) : null
