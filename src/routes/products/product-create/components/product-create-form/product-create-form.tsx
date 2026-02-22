@@ -119,8 +119,8 @@ export const ProductCreateForm = ({
         const fileReqs = []
         if (thumbnailReq?.length) {
           fileReqs.push(
-            uploadFilesQuery(thumbnailReq).then((r: any) =>
-              r.files.map((f: any) => ({
+            uploadFilesQuery(thumbnailReq).then((response: any) =>
+              (response?.files ?? []).map((f: any) => ({
                 ...f,
                 isThumbnail: true,
               }))
@@ -129,8 +129,8 @@ export const ProductCreateForm = ({
         }
         if (otherMediaReq?.length) {
           fileReqs.push(
-            uploadFilesQuery(otherMediaReq).then((r: any) =>
-              r.files.map((f: any) => ({
+            uploadFilesQuery(otherMediaReq).then((response: any) =>
+              (response?.files ?? []).map((f: any) => ({
                 ...f,
                 isThumbnail: false,
               }))
@@ -141,9 +141,10 @@ export const ProductCreateForm = ({
         uploadedMedia = (await Promise.all(fileReqs)).flat()
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message)
-      }
+      const message =
+        error instanceof Error ? error.message : t("products.media.failedToUpload")
+      toast.error(message)
+      return
     }
 
     await mutateAsync(

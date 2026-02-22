@@ -110,16 +110,27 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     let uploaded: HttpTypes.AdminFile[] = []
 
     if (filesToUpload.length) {
-      const { files } = await uploadFilesQuery(filesToUpload)
-        // .then((res) => res.json())
-        .catch(() => {
+      try {
+        const response = await uploadFilesQuery(filesToUpload)
+        if (!response?.files || !Array.isArray(response.files)) {
           form.setError("media", {
             type: "invalid_file",
             message: t("products.media.failedToUpload"),
           })
-          return { files: [] }
+          toast.error(t("products.media.failedToUpload"))
+          return
+        }
+        uploaded = response.files
+      } catch (error) {
+        form.setError("media", {
+          type: "invalid_file",
+          message: t("products.media.failedToUpload"),
         })
-      uploaded = files
+        const message =
+          error instanceof Error ? error.message : t("products.media.failedToUpload")
+        toast.error(message)
+        return
+      }
     }
 
     const withUpdatedUrls = media.map((entry, i) => {

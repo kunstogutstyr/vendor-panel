@@ -14,7 +14,10 @@ const getMarketplaceHeaders = (): Record<string, string> => {
   return headers;
 };
 
-const token = window.localStorage.getItem('medusa_auth_token') || '';
+const getAuthToken = () =>
+  typeof window !== 'undefined'
+    ? window.localStorage.getItem('medusa_auth_token') || ''
+    : '';
 
 const decodeJwt = (token: string) => {
   try {
@@ -49,17 +52,48 @@ export const importProductsQuery = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  return await fetch(`${backendUrl}/vendor/products/import`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      authorization: `Bearer ${token}`,
-      'x-publishable-api-key': publishableApiKey,
-      ...getMarketplaceHeaders()
+  let token = getAuthToken();
+
+  const request = async (bearer: string) =>
+    fetch(`${backendUrl}/vendor/products/import`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        authorization: `Bearer ${bearer}`,
+        'x-publishable-api-key': publishableApiKey,
+        ...getMarketplaceHeaders()
+      }
+    });
+
+  let response = await request(token);
+
+  if (response.status === 401) {
+    const freshToken = getAuthToken();
+    if (freshToken && freshToken !== token) {
+      token = freshToken;
+      response = await request(token);
     }
-  })
-    .then(res => res.json())
-    .catch(() => null);
+  }
+
+  if (!response.ok) {
+    let errorMessage = 'Import failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData?.message || errorMessage;
+    } catch {
+      // noop
+    }
+
+    if (response.status === 401) {
+      localStorage.removeItem('medusa_auth_token');
+      window.location.href = '/login?reason=Unauthorized';
+      throw new Error('Session expired. Please log in again.');
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
 };
 
 export const uploadFilesQuery = async (files: any[]) => {
@@ -69,17 +103,54 @@ export const uploadFilesQuery = async (files: any[]) => {
     formData.append('files', file);
   }
 
-  return await fetch(`${backendUrl}/vendor/uploads`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      authorization: `Bearer ${token}`,
-      'x-publishable-api-key': publishableApiKey,
-      ...getMarketplaceHeaders()
+  let token = getAuthToken();
+
+  const request = async (bearer: string) =>
+    fetch(`${backendUrl}/vendor/uploads`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        authorization: `Bearer ${bearer}`,
+        'x-publishable-api-key': publishableApiKey,
+        ...getMarketplaceHeaders()
+      }
+    });
+
+  let response = await request(token);
+
+  // Retry once with the latest token from storage.
+  if (response.status === 401) {
+    const freshToken = getAuthToken();
+    if (freshToken && freshToken !== token) {
+      token = freshToken;
+      response = await request(token);
     }
-  })
-    .then(res => res.json())
-    .catch(() => null);
+  }
+
+  if (!response.ok) {
+    let errorMessage = 'Image upload failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData?.message || errorMessage;
+    } catch {
+      // noop
+    }
+
+    if (response.status === 401) {
+      localStorage.removeItem('medusa_auth_token');
+      window.location.href = '/login?reason=Unauthorized';
+      throw new Error('Session expired. Please log in again.');
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  if (!data?.files || !Array.isArray(data.files)) {
+    throw new Error('Upload response is invalid');
+  }
+
+  return data;
 };
 
 export const fetchQuery = async (
@@ -96,7 +167,7 @@ export const fetchQuery = async (
     headers?: { [key: string]: string };
   }
 ) => {
-  const bearer = (await window.localStorage.getItem('medusa_auth_token')) || '';
+  const bearer = getAuthToken();
   const params = Object.entries(query || {}).reduce((acc, [key, value]) => {
     if (value !== null && value !== undefined && value !== '') {
       if (Array.isArray(value)) {
@@ -134,7 +205,7 @@ export const fetchQuery = async (
     const errorData = await response.json();
 
     if (response.status === 401) {
-      if (isTokenExpired(token)) {
+      if (isTokenExpired(bearer)) {
         localStorage.removeItem('medusa_auth_token');
         window.location.href = '/login?reason=Unauthorized';
         return;
