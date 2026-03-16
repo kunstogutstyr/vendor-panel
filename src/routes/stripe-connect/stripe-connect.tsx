@@ -6,10 +6,8 @@ import { Connected } from "./components/connected"
 
 const getStatus = (payout_account: any) => {
   if (!payout_account) return "not connected"
-
-  if (!payout_account?.onboarding) return "pending"
-
-  return "connected"
+  if (payout_account.status === "active") return "connected"
+  return "pending"
 }
 
 export const StripeConnect = () => {

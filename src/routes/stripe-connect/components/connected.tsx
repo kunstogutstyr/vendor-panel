@@ -40,17 +40,17 @@ export const Connected = ({
     <div className="flex items-center justify-center text-center my-32 flex-col">
       <ExclamationCircle />
       <Heading level="h2" className="mt-4">
-        Not onboarded
+        Oppsett ikke fullført
       </Heading>
       <Text className="text-ui-fg-subtle" size="small">
-        Go to Stripe Onboarding page
+        Stripe-kontoen er opprettet, men oppsettet ble ikke fullført. Klikk for å fortsette.
       </Text>
       <Button
         isLoading={isPending}
         className="mt-4"
         onClick={() => handleOnboarding()}
       >
-        Stripe Onboarding
+        Fortsett Stripe-oppsett
       </Button>
     </div>
   )
