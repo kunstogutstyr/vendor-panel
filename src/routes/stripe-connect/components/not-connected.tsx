@@ -20,7 +20,7 @@ export const NotConnected = () => {
         onClick={() =>
           mutateAsync({
             context: {
-              country: "US",
+              country: "NO",
               // external_account: {
               //   object: 'bank_account',
               //   country: 'US',
