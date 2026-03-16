@@ -18,6 +18,8 @@ export const useStripeAccount = () => {
         method: "GET",
       }),
     queryKey: [STRIPE_QUERY_KEY, "account"],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   })
 
   return { ...data, ...rest }
@@ -53,6 +55,9 @@ export const useCreateStripeOnboarding = (
         body: payload,
       }),
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [STRIPE_QUERY_KEY, "account"],
+      })
       queryClient.invalidateQueries({
         queryKey: [STRIPE_QUERY_KEY, "onboarding"],
       })

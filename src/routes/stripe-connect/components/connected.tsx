@@ -37,13 +37,15 @@ export const Connected = ({
       </Link>
     </div>
   ) : (
-    <div className="flex items-center justify-center text-center my-32 flex-col">
+    <div className="flex items-center justify-center text-center my-32 flex-col max-w-md mx-auto">
       <ExclamationCircle />
       <Heading level="h2" className="mt-4">
         Oppsett ikke fullført
       </Heading>
       <Text className="text-ui-fg-subtle" size="small">
-        Stripe-kontoen er opprettet, men oppsettet ble ikke fullført. Klikk for å fortsette.
+        Stripe-kontoen er opprettet, men oppsettet ble ikke fullført. Stripe kan også kreve ekstra
+        verifisering (f.eks. dokumentopplasting) før utbetalinger aktiveres. Klikk under for å
+        fortsette eller fullføre eventuelle ekstra steg.
       </Text>
       <Button
         isLoading={isPending}
