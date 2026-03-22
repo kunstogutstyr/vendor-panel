@@ -80,7 +80,7 @@ export const ProductCreateOrganizationSection = ({
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label optional>
+                <Form.Label>
                   Opplag og avgiftstype
                 </Form.Label>
                 <Form.Control>
@@ -90,7 +90,7 @@ export const ProductCreateOrganizationSection = ({
                     searchValue={types.searchValue}
                     onSearchValueChange={types.onSearchValueChange}
                     fetchNextPage={types.fetchNextPage}
-                    allowClear
+                    allowClear={false}
                   />
                 </Form.Control>
                 {selectedTypeHelpText && (

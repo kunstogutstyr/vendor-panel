@@ -59,7 +59,7 @@ export const ProductCreateAttributeSection = ({
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label optional>
+                <Form.Label>
                   {t("products.fields.width.label")}
                 </Form.Label>
                 <Form.Control>
@@ -91,7 +91,7 @@ export const ProductCreateAttributeSection = ({
           render={({ field }) => {
             return (
               <Form.Item>
-                <Form.Label optional>
+                <Form.Label>
                   {t("products.fields.height.label")}
                 </Form.Label>
                 <Form.Control>
