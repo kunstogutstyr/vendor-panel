@@ -1,10 +1,11 @@
 import { Heading } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../../../components/common/form"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
+import { useProductTypes } from "../../../../../../../hooks/api/product-types"
 import { fetchQuery } from "../../../../../../../lib/client"
 import { ProductCreateSchemaType } from "../../../../types"
 import { CategoryCombobox } from "../../../../../common/components/category-combobox"
@@ -46,6 +47,15 @@ export const ProductCreateOrganizationSection = ({
       })),
   })
 
+  const selectedTypeId = useWatch({
+    control: form.control,
+    name: "type_id",
+  })
+  const { product_types: productTypes = [] } = useProductTypes({ limit: 100 })
+  const selectedTypeHelpText = (
+    productTypes as Array<{ id: string; metadata?: Record<string, string> }>
+  ).find((type) => type.id === selectedTypeId)?.metadata?.Hjelpetekst
+
   const tags = useComboboxData({
     queryKey: ["product_tags", "creating"],
     queryFn: (params) =>
@@ -71,7 +81,7 @@ export const ProductCreateOrganizationSection = ({
             return (
               <Form.Item>
                 <Form.Label optional>
-                  {t("products.fields.type.label")}
+                  Opplag og avgiftstype
                 </Form.Label>
                 <Form.Control>
                   <Combobox
@@ -83,6 +93,9 @@ export const ProductCreateOrganizationSection = ({
                     allowClear
                   />
                 </Form.Control>
+                {selectedTypeHelpText && (
+                  <Form.Hint>{selectedTypeHelpText}</Form.Hint>
+                )}
                 <Form.ErrorMessage />
               </Form.Item>
             )
