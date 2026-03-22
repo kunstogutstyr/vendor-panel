@@ -6,6 +6,7 @@ import {
   useDashboardExtension,
 } from "../../../../../extensions"
 import { ProductCreateSchemaType } from "../../types"
+import { ProductCreateAttributeSection } from "./components/product-create-organize-attribute-section"
 import { ProductCreateOrganizationSection } from "./components/product-create-organize-section"
 import { ProductCreateSalesChannelStackedModal } from "./components/product-create-sales-channel-stacked-modal"
 import { SC_STACKED_MODAL_ID } from "./constants"
@@ -23,6 +24,7 @@ export const ProductCreateOrganizeForm = ({ form }: ProductAttributesProps) => {
       <div className="flex flex-col items-center p-16">
         <div className="flex w-full max-w-[720px] flex-col gap-y-8">
           <ProductCreateOrganizationSection form={form} />
+          <ProductCreateAttributeSection form={form} />
           <FormExtensionZone fields={fields} form={form} />
         </div>
       </div>
