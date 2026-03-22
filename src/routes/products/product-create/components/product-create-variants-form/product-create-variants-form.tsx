@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { HttpTypes } from "@medusajs/types"
@@ -14,6 +14,7 @@ import {
   ProductCreateVariantSchema,
 } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
+import { generateSku } from "../../utils"
 
 type ProductCreateVariantsFormProps = {
   form: UseFormReturn<ProductCreateSchemaType>
@@ -39,6 +40,12 @@ export const ProductCreateVariantsForm = ({
     [store]
   )
 
+  const productTitle = useWatch({
+    control: form.control,
+    name: "title",
+    defaultValue: "",
+  })
+
   const variants = useWatch({
     control: form.control,
     name: "variants",
@@ -50,6 +57,21 @@ export const ProductCreateVariantsForm = ({
     name: "options",
     defaultValue: [],
   })
+
+  useEffect(() => {
+    const currentVariants = form.getValues("variants") || []
+    if (currentVariants.length === 0) return
+
+    const titleValue = productTitle?.trim() || ""
+    const skuValue = generateSku(productTitle || "")
+
+    const updated = currentVariants.map((v) => ({
+      ...v,
+      title: titleValue,
+      sku: skuValue,
+    }))
+    form.setValue("variants", updated, { shouldDirty: true })
+  }, [productTitle, form])
 
   /**
    * NOTE: anything that goes to the datagrid component needs to be memoised otherwise DataGrid will rerender and inputs will loose focus
@@ -129,23 +151,23 @@ const useColumns = ({
         id: "title",
         name: t("fields.title"),
         header: t("fields.title"),
-        field: (context) =>
-          `variants.${context.row.original.originalIndex}.title`,
-        type: "text",
-        cell: (context) => {
-          return <DataGrid.TextCell context={context} />
-        },
+        cell: (context) => (
+          <DataGrid.ReadonlyCell context={context}>
+            {context.row.original.title || "-"}
+          </DataGrid.ReadonlyCell>
+        ),
+        disableHiding: true,
       }),
       columnHelper.column({
         id: "sku",
         name: t("fields.sku"),
         header: t("fields.sku"),
-        field: (context) =>
-          `variants.${context.row.original.originalIndex}.sku`,
-        type: "text",
-        cell: (context) => {
-          return <DataGrid.TextCell context={context} />
-        },
+        cell: (context) => (
+          <DataGrid.ReadonlyCell context={context}>
+            {context.row.original.sku || "-"}
+          </DataGrid.ReadonlyCell>
+        ),
+        disableHiding: true,
       }),
 
       ...createDataGridPriceColumns<VariantWithIndex, ProductCreateSchemaType>({

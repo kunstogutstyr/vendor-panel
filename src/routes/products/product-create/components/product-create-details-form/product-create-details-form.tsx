@@ -1,4 +1,4 @@
-import { Divider, Heading } from "@medusajs/ui"
+import { Heading } from "@medusajs/ui"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +9,6 @@ import {
 import { ProductCreateSchemaType } from "../../types"
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section"
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section"
-import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section"
 
 type ProductAttributesProps = {
   form: UseFormReturn<ProductCreateSchemaType>
@@ -28,8 +27,6 @@ export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
           <FormExtensionZone fields={fields} form={form} />
           <ProductCreateMediaSection form={form} />
         </div>
-        <Divider />
-        <ProductCreateVariantsSection form={form} />
       </div>
     </div>
   )

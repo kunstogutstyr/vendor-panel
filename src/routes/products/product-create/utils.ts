@@ -2,6 +2,35 @@ import { HttpTypes } from "@medusajs/types"
 import { castNumber } from "../../../lib/cast-number"
 import { ProductCreateSchemaType } from "./types"
 
+/**
+ * Generates a URL-safe slug from product name.
+ */
+export function slugify(str: string): string {
+  if (!str?.trim()) return ""
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+/**
+ * Generates a short random string for SKU suffix.
+ */
+function randomSkuSuffix(): string {
+  return Math.random().toString(36).slice(2, 10)
+}
+
+/**
+ * Generates SKU from product name + random suffix.
+ */
+export function generateSku(productTitle: string): string {
+  const base = slugify(productTitle)
+  const suffix = randomSkuSuffix()
+  return base ? `${base}-${suffix}` : `sku-${suffix}`
+}
+
 export const normalizeProductFormValues = (
   values: ProductCreateSchemaType & {
     status: HttpTypes.AdminProductStatus
@@ -36,7 +65,7 @@ export const normalizeProductFormValues = (
     title: values.title,
     subtitle: values.subtitle || undefined,
     description: values.description || undefined,
-    discountable: values.discountable || undefined,
+    discountable: true,
     width: values.width ? parseFloat(values.width) : undefined,
     length: values.length ? parseFloat(values.length) : undefined,
     height: values.height ? parseFloat(values.height) : undefined,

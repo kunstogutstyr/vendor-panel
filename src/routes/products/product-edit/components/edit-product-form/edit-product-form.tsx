@@ -23,7 +23,6 @@ const EditProductSchema = zod.object({
   title: zod.string().min(1),
   handle: zod.string().min(1),
   description: zod.string().optional(),
-  discountable: zod.boolean(),
 })
 
 export const EditProductForm = ({ product }: EditProductFormProps) => {
@@ -39,7 +38,6 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       title: product.title,
       handle: product.handle || "",
       description: product.description || "",
-      discountable: product.discountable,
     },
     schema: EditProductSchema,
     configs: configs,
@@ -49,12 +47,12 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { description, discountable, handle, title } = data
+    const { description, handle, title } = data
 
     await mutateAsync(
       {
         description,
-        discountable,
+        discountable: true,
         handle,
         title,
       },
@@ -212,12 +210,6 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                 }}
               />
             </div>
-            <SwitchBox
-              control={form.control}
-              name="discountable"
-              label={t("fields.discountable")}
-              description={t("products.discountableHint")}
-            />
             <FormExtensionZone fields={fields} form={form} />
           </div>
         </RouteDrawer.Body>

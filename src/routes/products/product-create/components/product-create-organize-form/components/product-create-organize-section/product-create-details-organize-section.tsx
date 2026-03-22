@@ -3,7 +3,6 @@ import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../../../components/common/form"
-import { SwitchBox } from "../../../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { fetchQuery } from "../../../../../../../lib/client"
@@ -64,13 +63,6 @@ export const ProductCreateOrganizationSection = ({
   return (
     <div id="organize" className="flex flex-col gap-y-8">
       <Heading>{t("products.organization.header")}</Heading>
-      <SwitchBox
-        control={form.control}
-        name="discountable"
-        label={t("products.fields.discountable.label")}
-        description={t("products.fields.discountable.hint")}
-        optional
-      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Form.Field
           control={form.control}
